@@ -1,2 +1,54 @@
-# brim
-brim
+# BRIM
+### A Homebrew remote package installer
+
+![Logo](.fixtures/logo.svg)
+
+## What is BRIM?
+
+1. BRIM is a very simple, yet effective Command-Line Interface (CLI) tool built in Rust.
+2. It is designed to simplify the installation of multiple Homebrew packages from a remote location in one shot. 
+3. With BRIM, you can easily manage and install Homebrew packages from a centralized location, streamlining your entire setup process.
+4. An excuse for myself to further learn Rust by maintaining it.
+
+
+## What is not BRIM?
+
+1. BRIM is not associated in any way with the Homebrew project.
+2. It was not built for any financial gains, and it will remain that way.
+
+## Arguments
+
+### `url`
+
+example: `brim -url=https://mydomain.io/package-list.json`
+
+The `url` argument takes a remote JSON URL that contains all the required package information. 
+The JSON structure should include the following fields:
+
+- `name` (required, string): The name of the package.
+- `cask` (optional boolean): Specify if the package is a cask  (if applicable).
+- `category` (optional, string): The category of the package (if applicable).
+- `url` (optional, string): URL to the formulae (if applicable).
+
+### `list`
+
+The `list` argument lists all the installed Homebrew packages on your system.
+
+### `uninstall`
+
+The `uninstall` argument removes every installed Homebrew package from your system.
+
+
+## Features
+
+If you'd like to make a feature suggestion please do so on the ![issues](https://github.com/alexandrughinea/brim/issues) page and lets discuss there.
+
+## Donation
+
+If you like BRIM, thanks for considering supporting its development! 
+Your contributions will help me maintain and improve the tool.
+If you'd like to make a donation, your generosity is greatly appreciated.
+
+![Buy me a coffee](.fixtures/bmc_qr.png)
+
+Your support ensures that Brim remains a reliable and efficient tool for managing your Homebrew packages.
