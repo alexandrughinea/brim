@@ -30,9 +30,9 @@ The `url` argument takes a remote JSON URL that contains all the required packag
 The JSON structure expected in the response is an array of objects having the following fields:
 
 - `name` (required, string): The name of the package.
-- `cask` (optional boolean): Specify if the package is a cask  (if applicable).
-- `category` (optional, string): The category of the package (if applicable).
-- `url` (optional, string): URL to the formulae (if applicable).
+- `cask` (optional boolean): Specify if the package is a cask (when applicable).
+- `category` (optional, string): The category of the package.
+- `url` (optional, string): URL to the formulae.
 
 ### `list`
 
@@ -41,8 +41,7 @@ The `list` argument lists all the installed Homebrew packages on your system.
 ### `uninstall`
 
 The `uninstall` argument lists every installed Homebrew package from your system.
-You have the flexibility to select what you want to nuke out of your system.
-It will also run a cleanup
+You have the flexibility to select what you want to nuke (including its dependencies) out of your system.
 
 ## Features
 1. Automatic dynamic menu generator based on the list you provide.
