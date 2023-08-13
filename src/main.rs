@@ -5,8 +5,7 @@ use console::{style, StyledObject};
 use dialoguer::MultiSelect;
 
 use models::{BrewPackage, BrewPackageState};
-use utilities::{fetch_packages, format_package_name, install_packages, list_installed_packages};
-use crate::utilities::uninstall_packages;
+use utilities::{fetch_packages, format_package_name, install_packages, list_installed_packages, remove_packages};
 
 mod constants;
 mod models;
@@ -18,18 +17,21 @@ mod utilities;
 async fn main() {
     let start_time = Instant::now();
 
-    let matches = Command::new("Welcome to BRIM! A (home)Brew Remote Install Massively stranger!")
-        .about("Install everything in one go, remotely!")
+    let matches = Command::new("BRIM")
         .arg(
             Arg::new("url")
-                .help("Your own remote file location"),
-                // add max wait config
+                .long("url")
+                .help("Your remote file location"),
         )
         .arg(
             Arg::new("list")
+                .long("list")
                 .help("List preinstalled Homebrew packages."),
         )
-        .arg(Arg::new("uninstall").help("Uninstall Homebrew packages (forced)."))
+        .arg(
+            Arg::new("remove")
+                .long("remove")
+                .help("Remove Homebrew packages (forced)."))
         .get_matches();
 
     let installed_packages = list_installed_packages().await;
@@ -120,7 +122,7 @@ async fn main() {
         eprintln!("Installed packages: {}\n", joined_installed_packages);
     }
 
-    if let Some(_value) = matches.get_one::<String>("uninstall") {
+    if let Some(_value) = matches.get_one::<String>("remove") {
         let prompt: String = format!(
             "BRIM found {} packages to uninstall",
             installed_packages.len()
@@ -145,7 +147,7 @@ async fn main() {
         }
 
         if selected_packages.len() > 0 {
-            uninstall_packages(&selected_packages);
+            remove_packages(&selected_packages);
         }
     }
 

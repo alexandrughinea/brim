@@ -2,10 +2,10 @@ use std::process::{exit, Command, Stdio};
 use crate::models::BrewPackage;
 use crate::constants::PROGRAM;
 
-pub fn uninstall_packages(packages: &Vec<BrewPackage>) {
+pub fn remove_packages(packages: &Vec<BrewPackage>) {
     for package in packages {
         let output = Command::new(PROGRAM)
-            .arg("uninstall")
+            .arg("remove")
             .arg("-f") // Use -f flag to force uninstall without confirmation
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
@@ -24,11 +24,11 @@ pub fn uninstall_packages(packages: &Vec<BrewPackage>) {
                         .output();
 
                     match auto_remove_output {
-                        Ok(output) => {
+                        Ok(_output) => {
                             eprintln!("Dependencies have been successfully cleaned up.");
                             exit(0);
                         }
-                        Err(error) => {
+                        Err(_error) => {
                             exit(1);
                         }
                     }
