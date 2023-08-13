@@ -1,19 +1,19 @@
 # BRIM
-### A homebrew remote package installer
+### A very lite homebrew remote package installer
 
-
-<a href="https://www.buymeacoffee.com/alexandrughinea" title="BRIM (Brew Remote Install Massively)">
-  <img src=".fixtures/logo.svg" alt="Donate" width="256px">
+<a href="https://www.buymeacoffee.com/alexandrughinea" title="BRIM (Brew Remote Install Manager)">
+  <img src=".fixtures/logo.svg" alt="BRIM (Brew Remote Install Manager)" width="256px">
 </a>
 
 ## What is BRIM?
 
-1. BRIM is a very simple, yet effective Command-Line Interface (CLI) tool built in Rust.
-2. It is designed to simplify the installation of multiple Homebrew packages from a remote location in one shot. 
-3. With BRIM, you can easily manage and install Homebrew packages from a centralized location, streamlining your entire setup process.
-4. An excuse for myself to further learn Rust by maintaining it.
-5. It is very light and runs where Homebrew runs.
-6. Very secure.
+1. The name stands for (home)Brew Remote Install Manager, we will refer to it as BRIM from now on.
+2. BRIM is a very simple, yet effective Command-Line Interface (CLI) tool built in Rust.
+3. It is designed to simplify the installation of multiple Homebrew packages described by remote resource (JSON in pre-alpha), in one shot. 
+4. With BRIM, you can easily manage and install Homebrew packages from a centralized location, streamlining your entire setup process.
+5. An excuse for myself to further learn Rust by maintaining it.
+6. It is very lite and runs where Homebrew runs.
+7. It is designed with security in mind.
 
 ## What is not BRIM?
 
@@ -26,8 +26,8 @@
 
 example: `brim -url=https://mydomain.io/package-list.json`
 
-The `url` argument takes a remote JSON URL that contains all the required package information. 
-The JSON structure should include the following fields:
+The `url` argument takes a remote JSON URL that contains all the required package information.
+The JSON structure expected in the response is an array of objects having the following fields:
 
 - `name` (required, string): The name of the package.
 - `cask` (optional boolean): Specify if the package is a cask  (if applicable).
@@ -50,14 +50,14 @@ It will also run a cleanup
 3. Uninstall menu with automatic dependencies cleanup.
 4. Support for casks.
 
-If you'd like to make a feature suggestion please do so on the ![issues](https://github.com/alexandrughinea/brim/issues) page and lets discuss there.
+If you'd like to make a feature suggestion please do so on the ![issues](https://github.com/alexandrughinea/brim/issues) page and lets discuss proposals there.
 
-## Donation
+## Donations
 
-If you like `BRIM`, thanks for considering supporting its development! 
-Your contributions will help me maintain and improve the tool.
+If you like `BRIM`, thanks for considering supporting its development!
+Your small support ensures that BRIM remains a reliable and efficient tool for managing your Homebrew installations.
+
 If you'd like to make a donation, your generosity is greatly appreciated.
-Your small support ensures that BRIM remains a reliable and efficient tool for managing your entire Homebrew collection.
 
 <a href="https://www.buymeacoffee.com/alexandrughinea" title="Buy me a beer">
   <img src=".fixtures/bmc_qr.png" alt="Donate" width="128px">
