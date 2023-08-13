@@ -1,7 +1,10 @@
 # BRIM
-### A Homebrew remote package installer
+### A homebrew remote package installer
 
-![Logo](.fixtures/logo.svg)
+
+<a href="https://www.buymeacoffee.com/alexandrughinea" title="BRIM (Brew Remote Install Massively)">
+  <img src=".fixtures/logo.svg" alt="Donate" width="256px">
+</a>
 
 ## What is BRIM?
 
@@ -9,7 +12,8 @@
 2. It is designed to simplify the installation of multiple Homebrew packages from a remote location in one shot. 
 3. With BRIM, you can easily manage and install Homebrew packages from a centralized location, streamlining your entire setup process.
 4. An excuse for myself to further learn Rust by maintaining it.
-
+5. It is very light and runs where Homebrew runs.
+6. Very secure.
 
 ## What is not BRIM?
 
@@ -53,7 +57,9 @@ If you'd like to make a feature suggestion please do so on the ![issues](https:/
 If you like `BRIM`, thanks for considering supporting its development! 
 Your contributions will help me maintain and improve the tool.
 If you'd like to make a donation, your generosity is greatly appreciated.
+Your small support ensures that BRIM remains a reliable and efficient tool for managing your entire Homebrew collection.
 
-[![Buy me a beer](.fixtures/bmc_qr.png)](https://www.buymeacoffee.com/alexandrughinea)
+<a href="https://www.buymeacoffee.com/alexandrughinea" title="Buy me a beer">
+  <img src=".fixtures/bmc_qr.png" alt="Donate" width="128px">
+</a>
 
-Your support ensures that BRIM remains a reliable and efficient tool for managing your Homebrew packages.
