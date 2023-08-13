@@ -49,10 +49,10 @@ If you'd like to make a feature suggestion please do so on the ![issues](https:/
 
 ## Donation
 
-If you like BRIM, thanks for considering supporting its development! 
+If you like `BRIM`, thanks for considering supporting its development! 
 Your contributions will help me maintain and improve the tool.
 If you'd like to make a donation, your generosity is greatly appreciated.
 
-![Buy me a coffee](.fixtures/bmc_qr.png)
+[![Buy me a beer](.fixtures/bmc_qr.png)](https://www.buymeacoffee.com/alexandrughinea)
 
-Your support ensures that Brim remains a reliable and efficient tool for managing your Homebrew packages.
+Your support ensures that BRIM remains a reliable and efficient tool for managing your Homebrew packages.
