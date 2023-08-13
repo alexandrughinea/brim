@@ -45,7 +45,7 @@ You have the flexibility to select what you want to nuke (including its dependen
 
 ## Features
 1. Automatic dynamic menu generator based on the list you provide.
-2. Instalation menu for your dependencies.
+2. Installation menu for your dependencies.
 3. Uninstall menu with automatic dependencies cleanup.
 4. Support for casks.
 
