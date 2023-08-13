@@ -40,6 +40,10 @@ The `uninstall` argument removes every installed Homebrew package from your syst
 
 
 ## Features
+1. Automatic menu generator.
+2. Instalation management menu.
+3. Support for casks
+4. Force uninstall
 
 If you'd like to make a feature suggestion please do so on the ![issues](https://github.com/alexandrughinea/brim/issues) page and lets discuss there.
 
