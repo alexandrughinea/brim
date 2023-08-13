@@ -21,6 +21,7 @@ pub fn install_packages(packages: &Vec<BrewPackage>) {
             Ok(output) => {
                 if output.status.success() {
                     eprintln!("Package {} has been installed.", package.name);
+                    exit(0);
                 } else {
                     eprintln!(
                         "Failed to install package {}. Error: {}",

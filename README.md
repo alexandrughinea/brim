@@ -36,14 +36,15 @@ The `list` argument lists all the installed Homebrew packages on your system.
 
 ### `uninstall`
 
-The `uninstall` argument removes every installed Homebrew package from your system.
-
+The `uninstall` argument lists every installed Homebrew package from your system.
+You have the flexibility to select what you want to nuke out of your system.
+It will also run a cleanup
 
 ## Features
-1. Automatic menu generator.
-2. Instalation management menu.
-3. Support for casks
-4. Force uninstall
+1. Automatic dynamic menu generator based on the list you provide.
+2. Instalation menu for your dependencies.
+3. Uninstall menu with automatic dependencies cleanup.
+4. Support for casks.
 
 If you'd like to make a feature suggestion please do so on the ![issues](https://github.com/alexandrughinea/brim/issues) page and lets discuss there.
 

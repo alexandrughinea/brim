@@ -1,20 +1,37 @@
-use std::process::{exit, Command};
+use std::process::{exit, Command, Stdio};
 use crate::models::BrewPackage;
 use crate::constants::PROGRAM;
 
-#[allow(dead_code)]
 pub fn uninstall_packages(packages: &Vec<BrewPackage>) {
     for package in packages {
         let output = Command::new(PROGRAM)
             .arg("uninstall")
             .arg("-f") // Use -f flag to force uninstall without confirmation
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
             .arg(&package.name)
             .output();
 
         match output {
             Ok(output) => {
                 if output.status.success() {
-                    eprintln!("Package {} has been removed.", package.name);
+                    eprintln!("Package {} has been removed.\nNow cleaning up dependencies.", package.name);
+
+                    let auto_remove_output = Command::new(PROGRAM)
+                        .arg("autoremove")
+                        .stdout(Stdio::inherit())
+                        .stderr(Stdio::inherit())
+                        .output();
+
+                    match auto_remove_output {
+                        Ok(output) => {
+                            eprintln!("Dependencies have been successfully cleaned up.");
+                            exit(0);
+                        }
+                        Err(error) => {
+                            exit(1);
+                        }
+                    }
                 } else {
                     eprintln!(
                         "Failed to uninstall package {}. Error: {}",
