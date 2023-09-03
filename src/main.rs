@@ -34,7 +34,7 @@ async fn main() {
                 .help("Remove Homebrew packages (forced)."))
         .get_matches();
 
-    let installed_packages = list_installed_packages().await;
+    let installed_packages = list_installed_packages();
 
     if let Some(value) = matches.get_one::<String>("url") {
         match fetch_packages(value).await {
@@ -45,38 +45,30 @@ async fn main() {
                 );
                 let package_option: Vec<_> = packages
                     .iter()
-                    .map(|package| -> StyledObject<std::string::String> {
-                        let formatted_name = format_package_name(&package, None);
-                        let style_package_name = style(formatted_name);
+                    .map(|package| {
                         let is_installed = installed_packages
                             .iter()
-                            .find(|p| p.name.to_string().contains(&package.name))
-                            .is_some();
+                            .any(|p| p.name.to_string().contains(&package.name));
+
                         let is_cask = package.cask.is_some();
+                        let state = if is_installed && is_cask {
+                            BrewPackageState::InstalledCask
+                        } else if is_installed {
+                            BrewPackageState::Installed
+                        } else if is_cask {
+                            BrewPackageState::Cask
+                        } else {
+                            BrewPackageState::Default
+                        };
 
-                        if is_installed && is_cask {
-                            let formatted_name =
-                                format_package_name(&package, Some(BrewPackageState::InstalledCask));
-                            let style_package_name = style(formatted_name);
-
-                            return style_package_name.green().dim();
-                        }
-
-                        if is_installed {
-                            let formatted_name = format_package_name(&package, Some(BrewPackageState::Installed));
-                            let style_package_name = style(formatted_name);
-
-                            return style_package_name.green().dim();
-                        }
+                        let formatted_name = format_package_name(&package, Some(state));
+                        let style_package_name = style(formatted_name);
 
                         if is_cask {
-                            let formatted_name = format_package_name(&package, Some(BrewPackageState::Cask));
-                            let style_package_name = style(formatted_name);
-
-                            return style_package_name.magenta();
+                            style_package_name.magenta()
+                        } else {
+                            style_package_name.green().dim()
                         }
-
-                        return style_package_name.for_stderr();
                     })
                     .collect();
                 let defaults: Vec<bool> = packages
