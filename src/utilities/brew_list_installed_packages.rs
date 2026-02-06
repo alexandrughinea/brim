@@ -2,7 +2,7 @@ use crate::constants::PROGRAM;
 use crate::models::BrewPackage;
 use std::process::{exit, Command, Stdio};
 
-pub async fn list_installed_packages() -> Vec<BrewPackage> {
+pub fn list_installed_packages() -> Vec<BrewPackage> {
     let output = Command::new(PROGRAM)
         .arg("list")
         .stdout(Stdio::piped())
@@ -14,14 +14,15 @@ pub async fn list_installed_packages() -> Vec<BrewPackage> {
             let result: Vec<BrewPackage> = String::from_utf8_lossy(stdout)
                 .lines()
                 .map(|s| BrewPackage {
-                    name: s.clone().to_string(),
+                    name: s.to_string(),
                     category: None,
                     url: None,
                     cask: None,
+                    version: None,
                 }) // Convert &str to String
                 .collect();
 
-            return result;
+            result
         }
         Err(error) => {
             eprintln!("Failed to execute command: {}", error);

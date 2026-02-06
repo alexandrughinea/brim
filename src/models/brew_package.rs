@@ -1,18 +1,12 @@
 use serde::Deserialize;
 
-// Struct to deserialize options from the JSON response
 #[derive(Debug, Deserialize, Clone)]
 pub struct BrewPackage {
     pub name: String,
     pub category: Option<String>,
+    #[allow(dead_code)]
     pub url: Option<String>,
     pub cask: Option<bool>,
+    #[allow(dead_code)]
     pub version: Option<String>
-}
-
-pub enum BrewPackageState {
-    InstalledCask,
-    Installed,
-    Cask,
-    Default
 }

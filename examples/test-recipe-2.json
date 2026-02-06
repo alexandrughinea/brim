@@ -1,0 +1,17 @@
+[
+    {
+        "name": "htop",
+        "category": "System",
+        "url": "https://formulae.brew.sh/formula/htop"
+    },
+    {
+        "name": "curl",
+        "category": "Network",
+        "url": "https://formulae.brew.sh/formula/curl"
+    },
+    {
+        "name": "git",
+        "category": "Development",
+        "url": "https://formulae.brew.sh/formula/git"
+    }
+]

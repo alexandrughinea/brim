@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BRIM Recipe File",
+  "description": "Schema for BRIM (Brew Remote Install Manager) recipe files",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["name"],
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Package name as it appears in Homebrew",
+        "minLength": 1,
+        "pattern": "^[a-zA-Z0-9._-]+$"
+      },
+      "category": {
+        "type": "string",
+        "description": "Optional category for organization (displayed in UI)",
+        "minLength": 1
+      },
+      "url": {
+        "type": "string",
+        "description": "Reference URL to Homebrew formulae page",
+        "format": "uri"
+      },
+      "cask": {
+        "type": "boolean",
+        "description": "Set to true for cask applications (GUI apps)",
+        "default": false
+      },
+      "version": {
+        "type": "string",
+        "description": "Specific version (reserved for future use)",
+        "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+      }
+    },
+    "additionalProperties": false
+  },
+  "minItems": 1,
+  "uniqueItems": true
+}
