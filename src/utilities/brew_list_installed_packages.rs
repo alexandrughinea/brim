@@ -1,31 +1,26 @@
 use crate::constants::PROGRAM;
 use crate::models::BrewPackage;
-use std::process::{exit, Command, Stdio};
+use std::process::{Command, Stdio};
 
-pub async fn list_installed_packages() -> Vec<BrewPackage> {
+pub fn list_installed_packages() -> Result<Vec<BrewPackage>, String> {
     let output = Command::new(PROGRAM)
         .arg("list")
         .stdout(Stdio::piped())
-        .output();
+        .output()
+        .map_err(|e| format!("Failed to run brew: {}. Is Homebrew installed and in PATH?", e))?;
 
-    match output {
-        Ok(output) => {
-            let stdout = &output.stdout.clone();
-            let result: Vec<BrewPackage> = String::from_utf8_lossy(stdout)
-                .lines()
-                .map(|s| BrewPackage {
-                    name: s.clone().to_string(),
-                    category: None,
-                    url: None,
-                    cask: None,
-                }) // Convert &str to String
-                .collect();
+    let stdout = &output.stdout;
+    let result: Vec<BrewPackage> = String::from_utf8_lossy(stdout)
+        .lines()
+        .filter(|s| !s.trim().is_empty())
+        .map(|s| BrewPackage {
+            name: s.to_string(),
+            category: None,
+            url: None,
+            cask: None,
+            version: None,
+        })
+        .collect();
 
-            return result;
-        }
-        Err(error) => {
-            eprintln!("Failed to execute command: {}", error);
-            exit(1);
-        }
-    }
+    Ok(result)
 }

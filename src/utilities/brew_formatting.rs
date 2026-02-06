@@ -1,16 +1,6 @@
-use crate::models::{BrewPackage, BrewPackageState};
+use crate::models::BrewPackage;
 
-pub fn format_package_name(value: &BrewPackage, template: Option<BrewPackageState>) -> String {
-    let case = match template {
-        Some(BrewPackageState::InstalledCask) => "cask installed",
-        Some(BrewPackageState::Installed) => "installed",
-        Some(BrewPackageState::Cask) => "cask",
-        _ => "",
-    };
-
-    if !template.is_some() {
-        return format!("{}", value.name);
-    }
-
-    format!("{} - [{}]", value.name, case)
+#[allow(dead_code)]
+pub fn format_package_name(value: &BrewPackage) -> String {
+    value.name.to_string()
 }
