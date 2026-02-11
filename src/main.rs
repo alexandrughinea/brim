@@ -7,7 +7,7 @@ use dialoguer::MultiSelect;
 
 use models::BrewPackage;
 use utilities::{fetch_packages, install_packages, list_installed_packages, remove_packages};
-use webhook::{post_webhook, PackageResult, WebhookPayload};
+use webhook::{post_webhook, WebhookPayload};
 
 mod constants;
 mod models;
