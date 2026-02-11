@@ -139,10 +139,10 @@ impl ProgressTracker {
             .direction(Direction::Vertical)
             .margin(2)
             .constraints([
-                Constraint::Length(3), // Title
-                Constraint::Length(5), // Stats
-                Constraint::Min(10),   // Package list
-                Constraint::Length(3), // Footer
+                Constraint::Length(3), 
+                Constraint::Length(5), 
+                Constraint::Min(10),  
+                Constraint::Length(3), 
             ])
             .split(f.area());
 
@@ -222,8 +222,6 @@ impl ProgressTracker {
 
     fn render_ui_static(f: &mut Frame, packages_arc: &Arc<Mutex<Vec<PackageProgress>>>, total_packages: usize) {
         let packages = packages_arc.lock().unwrap();
-        
-        // Calculate completed packages
         let completed = packages
             .iter()
             .filter(|p| p.state == ProgressState::Completed)
@@ -264,7 +262,7 @@ impl ProgressTracker {
             .label(progress_label);
         f.render_widget(overall_gauge, chunks[1]);
 
-        // Package list - show visible packages in the available space
+        // Package list
         Self::render_package_list_static(f, chunks[2], &packages);
 
         // Footer
@@ -281,14 +279,15 @@ impl ProgressTracker {
 
     fn render_package_list_static(f: &mut Frame, area: Rect, packages: &[PackageProgress]) {
         // Calculate how many packages we can show
-        let available_height = area.height.saturating_sub(2); // Subtract borders
-        let packages_per_screen = (available_height / 3).max(1) as usize; // Each package takes ~3 lines
+        let available_height = area.height.saturating_sub(2); 
+        let packages_per_screen = (available_height / 3).max(1) as usize;
 
         // Find the first active (non-completed) package
         let first_active = packages
             .iter()
             .position(|p| p.state != ProgressState::Completed)
             .unwrap_or(0);
+
 
         // Show packages starting from the first active one
         let start_idx = first_active.saturating_sub(1).min(packages.len().saturating_sub(packages_per_screen));
@@ -339,14 +338,14 @@ impl ProgressTracker {
 
     pub fn run_with_updates<F>(&mut self, update_fn: F) -> io::Result<bool>
     where
-        F: FnMut() -> bool, // Returns true when done
+        F: FnMut() -> bool
     {
         self.run_with_updates_internal(update_fn, true)
     }
 
     pub fn run_without_summary<F>(&mut self, update_fn: F) -> io::Result<bool>
     where
-        F: FnMut() -> bool, // Returns true when done
+        F: FnMut() -> bool
     {
         self.run_with_updates_internal(update_fn, false)
     }
