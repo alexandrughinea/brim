@@ -58,7 +58,7 @@ pub fn install_packages(
         let cancelled = Arc::new(AtomicBool::new(false));
 
         let install_threads: Vec<_> = {
-            let packages = packages_arc.lock().unwrap();
+            let packages = packages_arc.lock().unwrap_or_else(|e| e.into_inner());
 
             packages
                 .iter()
@@ -96,7 +96,7 @@ pub fn install_packages(
             let cancelled = Arc::clone(&cancelled);
 
             thread::spawn(move || {
-                let packages = packages_arc.lock().unwrap();
+                let packages = packages_arc.lock().unwrap_or_else(|e| e.into_inner());
 
                 for (index, package) in packages.iter().enumerate() {
                     if cancelled.load(Ordering::Relaxed) {
@@ -234,7 +234,7 @@ fn parallel_download_sequential_install(
     tracker_packages: Arc<Mutex<Vec<crate::tui::progress::PackageProgress>>>,
     tracker: &mut ProgressTracker,
 ) -> Vec<BrewPackageResult> {
-    let packages = packages_arc.lock().unwrap().clone();
+    let packages = packages_arc.lock().unwrap_or_else(|e| e.into_inner()).clone();
     let cancelled = Arc::new(AtomicBool::new(false));
 
     let download_threads: Vec<_> = packages
@@ -281,7 +281,7 @@ fn parallel_download_sequential_install(
                     }
                 };
 
-                let mut wait_count = 0;
+                let mut wait_count: u32 = 0;
                 let fetch_result = loop {
                     if cancelled.load(Ordering::Relaxed) {
                         let _ = child.kill();
@@ -293,7 +293,7 @@ fn parallel_download_sequential_install(
                             break Some(status.success());
                         }
                         Ok(None) => {
-                            wait_count += 1;
+                            wait_count = wait_count.saturating_add(1);
                             if wait_count > 1200 {
                                 let _ = child.kill();
                                 if let Ok(mut tracked) = tracker_packages.lock() {
@@ -305,7 +305,7 @@ fn parallel_download_sequential_install(
                                 break None;
                             }
 
-                            if wait_count % 10 == 0 {
+                            if wait_count.is_multiple_of(10) {
                                 let progress = ((wait_count as f32 / 1200.0) * 90.0) as u16;
                                 if let Ok(mut tracked) = tracker_packages.try_lock() {
                                     if let Some(p) = tracked.get_mut(index) {
@@ -472,8 +472,19 @@ fn install_single_package(
         }
     };
 
-    let stdout = child.stdout.take().unwrap();
-    let stderr = child.stderr.take().unwrap();
+    let (stdout, stderr) = match (child.stdout.take(), child.stderr.take()) {
+        (Some(out), Some(err)) => (out, err),
+        _ => {
+            let _ = child.kill();
+            if let Ok(mut tracked) = tracker_packages.lock() {
+                if let Some(p) = tracked.get_mut(index) {
+                    p.state = ProgressState::Failed;
+                    p.message = "Internal error: stdio not piped".to_string();
+                }
+            }
+            return;
+        }
+    };
     let tracker_packages_clone = Arc::clone(tracker_packages);
 
     let stdout_thread = thread::spawn(move || {
@@ -514,47 +525,35 @@ fn install_single_package(
         }
     });
 
-    #[allow(unused_assignments)]
-    let mut status = None;
-    let mut wait_count = 0;
-    loop {
+    let mut wait_count: u32 = 0;
+    let status: Result<std::process::ExitStatus, std::io::Error> = loop {
         if cancelled.load(Ordering::Relaxed) {
             let _ = child.kill();
-            status = Some(Err(std::io::Error::new(
+            break Err(std::io::Error::new(
                 std::io::ErrorKind::Interrupted,
                 "Cancelled by user",
-            )));
-            break;
+            ));
         }
 
         match child.try_wait() {
-            Ok(Some(exit_status)) => {
-                status = Some(Ok(exit_status));
-                break;
-            }
+            Ok(Some(exit_status)) => break Ok(exit_status),
             Ok(None) => {
-                wait_count += 1;
+                wait_count = wait_count.saturating_add(1);
                 if wait_count > 1800 {
                     let _ = child.kill();
-                    status = Some(Err(std::io::Error::new(
+                    break Err(std::io::Error::new(
                         std::io::ErrorKind::TimedOut,
                         "Installation timed out after 3 minutes",
-                    )));
-                    break;
+                    ));
                 }
                 thread::sleep(Duration::from_millis(100));
             }
-            Err(e) => {
-                status = Some(Err(e));
-                break;
-            }
+            Err(e) => break Err(e),
         }
-    }
+    };
 
     let _ = stdout_thread.join();
     let _ = stderr_thread.join();
-
-    let status = status.unwrap();
 
     if let Ok(mut tracked) = tracker_packages.lock() {
         if let Some(p) = tracked.get_mut(index) {
@@ -585,7 +584,7 @@ fn estimate_progress(line: &str) -> u16 {
     if let Some(pos) = line.find('%') {
         let before = &line[..pos];
         if let Some(num_start) = before.rfind(|c: char| !c.is_ascii_digit()) {
-            if let Ok(percent) = before[num_start + 1..].parse::<u16>() {
+            if let Ok(percent) = before[num_start.saturating_add(1)..].parse::<u16>() {
                 return percent.min(100);
             }
         }

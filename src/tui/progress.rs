@@ -145,7 +145,7 @@ impl ProgressTracker {
         total_packages: usize,
         countdown_secs: Option<u64>,
     ) {
-        let packages = packages_arc.lock().unwrap();
+        let packages = packages_arc.lock().unwrap_or_else(|e| e.into_inner());
 
         let completed = packages
             .iter()
@@ -167,6 +167,10 @@ impl ProgressTracker {
                 Constraint::Length(3),
             ])
             .split(f.area());
+        let Some(title_area) = chunks.first().copied() else { return; };
+        let Some(stats_area) = chunks.get(1).copied() else { return; };
+        let Some(list_area) = chunks.get(2).copied() else { return; };
+        let Some(footer_area) = chunks.get(3).copied() else { return; };
 
         let (top, middle, bottom) = crate::utilities::brew_common::header_lines("Summary");
         let title = Paragraph::new(vec![
@@ -189,7 +193,7 @@ impl ProgressTracker {
                     .add_modifier(Modifier::BOLD),
             )]),
         ]);
-        f.render_widget(title, chunks[0]);
+        f.render_widget(title, title_area);
 
         // Stats
         let stats_text = vec![
@@ -221,10 +225,10 @@ impl ProgressTracker {
         ];
         let stats = Paragraph::new(stats_text)
             .block(Block::default().title("Results").borders(Borders::ALL));
-        f.render_widget(stats, chunks[1]);
+        f.render_widget(stats, stats_area);
 
         // Package list
-        let available_height = chunks[2].height.saturating_sub(2);
+        let available_height = list_area.height.saturating_sub(2);
         let packages_per_screen = (available_height / 2).max(1) as usize;
 
         let visible_packages: Vec<_> = packages.iter().take(packages_per_screen).collect();
@@ -237,29 +241,28 @@ impl ProgressTracker {
                     .map(|_| Constraint::Length(2))
                     .collect::<Vec<_>>(),
             )
-            .split(chunks[2]);
+            .split(list_area);
 
         for (i, package) in visible_packages.iter().enumerate() {
-            if i < package_chunks.len() {
-                let status_icon = match package.state {
-                    ProgressState::Completed => "✓",
-                    ProgressState::Failed => "✗",
-                    _ => "•",
-                };
+            let Some(&chunk) = package_chunks.get(i) else { continue; };
+            let status_icon = match package.state {
+                ProgressState::Completed => "✓",
+                ProgressState::Failed => "✗",
+                _ => "•",
+            };
 
-                let line = Line::from(vec![
-                    Span::styled(
-                        format!(" {} ", status_icon),
-                        Style::default()
-                            .fg(package.state_color())
-                            .add_modifier(Modifier::BOLD),
-                    ),
-                    Span::styled(&package.name, Style::default().fg(Color::White)),
-                ]);
+            let line = Line::from(vec![
+                Span::styled(
+                    format!(" {} ", status_icon),
+                    Style::default()
+                        .fg(package.state_color())
+                        .add_modifier(Modifier::BOLD),
+                ),
+                Span::styled(&package.name, Style::default().fg(Color::White)),
+            ]);
 
-                let para = Paragraph::new(line).block(Block::default().borders(Borders::BOTTOM));
-                f.render_widget(para, package_chunks[i]);
-            }
+            let para = Paragraph::new(line).block(Block::default().borders(Borders::BOTTOM));
+            f.render_widget(para, chunk);
         }
 
         // Footer: show countdown when autoquit is set, else "Press q or ESC to exit"
@@ -291,7 +294,7 @@ impl ProgressTracker {
             ]),
         };
         let footer = Paragraph::new(footer_line).block(Block::default().borders(Borders::ALL));
-        f.render_widget(footer, chunks[3]);
+        f.render_widget(footer, footer_area);
     }
 
     fn render_ui_static(
@@ -299,7 +302,7 @@ impl ProgressTracker {
         packages_arc: &Arc<Mutex<Vec<PackageProgress>>>,
         total_packages: usize,
     ) {
-        let packages = packages_arc.lock().unwrap();
+        let packages = packages_arc.lock().unwrap_or_else(|e| e.into_inner());
         let completed = packages
             .iter()
             .filter(|p| p.state == ProgressState::Completed)
@@ -316,6 +319,10 @@ impl ProgressTracker {
                 Constraint::Length(3), // Footer
             ])
             .split(f.area());
+        let Some(title_area) = chunks.first().copied() else { return; };
+        let Some(progress_area) = chunks.get(1).copied() else { return; };
+        let Some(list_area) = chunks.get(2).copied() else { return; };
+        let Some(footer_area) = chunks.get(3).copied() else { return; };
         let (top, middle, bottom) =
             crate::utilities::brew_common::header_lines("Brew Recipe Install Manager");
         let title = Paragraph::new(vec![
@@ -338,7 +345,7 @@ impl ProgressTracker {
                     .add_modifier(Modifier::BOLD),
             )]),
         ]);
-        f.render_widget(title, chunks[0]);
+        f.render_widget(title, title_area);
 
         // Overall progress
         let overall_progress = (completed as f64 / total_packages as f64 * 100.0) as u16;
@@ -353,10 +360,10 @@ impl ProgressTracker {
             )
             .percent(overall_progress)
             .label(progress_label);
-        f.render_widget(overall_gauge, chunks[1]);
+        f.render_widget(overall_gauge, progress_area);
 
         // Package list
-        Self::render_package_list_static(f, chunks[2], &packages);
+        Self::render_package_list_static(f, list_area, &packages);
 
         // Footer
         let footer = Paragraph::new(Line::from(vec![
@@ -378,7 +385,7 @@ impl ProgressTracker {
             Span::styled(" to force quit", Style::default().fg(Color::Gray)),
         ]))
         .block(Block::default().borders(Borders::ALL));
-        f.render_widget(footer, chunks[3]);
+        f.render_widget(footer, footer_area);
     }
 
     fn render_package_list_static(f: &mut Frame, area: Rect, packages: &[PackageProgress]) {
@@ -409,9 +416,8 @@ impl ProgressTracker {
             .split(area);
 
         for (i, package) in visible_packages.iter().enumerate() {
-            if i < package_chunks.len() {
-                Self::render_package_static(f, package_chunks[i], package);
-            }
+            let Some(&chunk) = package_chunks.get(i) else { continue; };
+            Self::render_package_static(f, chunk, package);
         }
     }
 
