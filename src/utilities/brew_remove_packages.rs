@@ -69,7 +69,7 @@ pub fn remove_packages(packages: &[BrewPackage], _parallel: bool) -> Vec<BrewPac
     let cancelled = Arc::new(AtomicBool::new(false));
 
     let remove_threads: Vec<_> = {
-        let packages = packages_arc.lock().unwrap();
+        let packages = packages_arc.lock().unwrap_or_else(|e| e.into_inner());
 
         packages
             .iter()

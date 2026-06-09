@@ -595,7 +595,7 @@ async fn run_tui(matches: &ArgMatches, start_time: Instant) {
         for (i, u) in url_list.iter().enumerate() {
             println!(
                 "  {} {}",
-                style(format!("{}/{}:", i + 1, url_list.len())).dim(),
+                style(format!("{}/{}:", i.saturating_add(1), url_list.len())).dim(),
                 style(u).cyan()
             );
         }
@@ -680,7 +680,7 @@ async fn run_tui(matches: &ArgMatches, start_time: Instant) {
                 println!("  Total packages: {}", style(packages.len()).cyan().bold());
                 println!("  Already installed: {}", style(installed_count).green());
                 println!("  Casks: {}", style(cask_count).magenta());
-                println!("  Formulae: {}", style(packages.len() - cask_count).green());
+                println!("  Formulae: {}", style(packages.len().saturating_sub(cask_count)).green());
 
                 let prompt: String = format!(
                     "\n{}\nSpace to toggle, Enter to confirm and install\n",
@@ -759,8 +759,9 @@ async fn run_tui(matches: &ArgMatches, start_time: Instant) {
                 let mut selected_packages: Vec<BrewPackage> = vec![];
 
                 for index in &package_selections {
-                    let package_clone: BrewPackage = packages[*index].clone();
-                    selected_packages.push(package_clone);
+                    if let Some(package_clone) = packages.get(*index).cloned() {
+                        selected_packages.push(package_clone);
+                    }
                 }
 
                 if !selected_packages.is_empty() {
@@ -846,7 +847,7 @@ async fn run_tui(matches: &ArgMatches, start_time: Instant) {
         for (i, package) in installed_packages.iter().enumerate() {
             println!(
                 "  {} {}",
-                style(format!("{:3}.", i + 1)).dim(),
+                style(format!("{:3}.", i.saturating_add(1))).dim(),
                 style(&package.name).green()
             );
         }
@@ -898,8 +899,9 @@ async fn run_tui(matches: &ArgMatches, start_time: Instant) {
         let mut selected_packages: Vec<BrewPackage> = vec![];
 
         for index in &package_selections {
-            let package_clone: BrewPackage = installed_packages[*index].clone();
-            selected_packages.push(package_clone);
+            if let Some(package_clone) = installed_packages.get(*index).cloned() {
+                selected_packages.push(package_clone);
+            }
         }
 
         if !selected_packages.is_empty() {
@@ -1106,7 +1108,7 @@ fn sync_packages(installed: &[BrewPackage], recipe: &[BrewPackage], dry_run: boo
             let cask_marker = if pkg.cask.is_some() { " [cask]" } else { "" };
             println!(
                 "  {} {} {}{}{}",
-                style(format!("{:2}.", i + 1)).dim(),
+                style(format!("{:2}.", i.saturating_add(1))).dim(),
                 style("+").green().bold(),
                 style(&pkg.name).green(),
                 style(category).dim(),
@@ -1129,7 +1131,7 @@ fn sync_packages(installed: &[BrewPackage], recipe: &[BrewPackage], dry_run: boo
         for (i, pkg) in to_remove.iter().enumerate() {
             println!(
                 "  {} {} {}",
-                style(format!("{:2}.", i + 1)).dim(),
+                style(format!("{:2}.", i.saturating_add(1))).dim(),
                 style("-").yellow(),
                 style(&pkg.name).dim()
             );
@@ -1221,7 +1223,7 @@ fn print_dry_run_preview(packages: &[BrewPackage], operation: &str) {
         for (i, name) in formulae.iter().enumerate() {
             println!(
                 "    {} {}",
-                style(format!("{:2}.", i + 1)).dim(),
+                style(format!("{:2}.", i.saturating_add(1))).dim(),
                 style(name).green()
             );
         }
@@ -1233,7 +1235,7 @@ fn print_dry_run_preview(packages: &[BrewPackage], operation: &str) {
         for (i, name) in casks.iter().enumerate() {
             println!(
                 "    {} {}",
-                style(format!("{:2}.", i + 1)).dim(),
+                style(format!("{:2}.", i.saturating_add(1))).dim(),
                 style(name).magenta()
             );
         }

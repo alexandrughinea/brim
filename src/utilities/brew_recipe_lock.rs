@@ -38,32 +38,32 @@ impl From<std::io::Error> for LockError {
 /// Returns a canonical JSON string for the merged recipe (sorted keys) for stable hashing.
 fn canonical_recipe_json(packages: &[BrewPackage]) -> Result<String, serde_json::Error> {
     let value = serde_json::to_value(packages)?;
-    Ok(canonical_json_string(&value))
+    canonical_json_string(&value)
 }
 
-fn canonical_json_string(value: &serde_json::Value) -> String {
+fn canonical_json_string(value: &serde_json::Value) -> Result<String, serde_json::Error> {
     match value {
         serde_json::Value::Object(map) => {
-            let mut keys: Vec<_> = map.keys().collect();
-            keys.sort();
-            let entries: Vec<String> = keys
+            let mut pairs: Vec<_> = map.iter().collect();
+            pairs.sort_by_key(|(k, _)| *k);
+            let entries: Result<Vec<String>, _> = pairs
                 .into_iter()
-                .map(|k| {
-                    let v = map.get(k).unwrap();
-                    format!(
+                .map(|(k, v)| {
+                    Ok(format!(
                         "{}:{}",
-                        serde_json::to_string(k).unwrap(),
-                        canonical_json_string(v)
-                    )
+                        serde_json::to_string(k)?,
+                        canonical_json_string(v)?
+                    ))
                 })
                 .collect();
-            format!("{{{}}}", entries.join(","))
+            Ok(format!("{{{}}}", entries?.join(",")))
         }
         serde_json::Value::Array(arr) => {
-            let entries: Vec<String> = arr.iter().map(canonical_json_string).collect();
-            format!("[{}]", entries.join(","))
+            let entries: Result<Vec<String>, _> =
+                arr.iter().map(canonical_json_string).collect();
+            Ok(format!("[{}]", entries?.join(",")))
         }
-        other => serde_json::to_string(other).unwrap(),
+        other => serde_json::to_string(other),
     }
 }
 
@@ -191,6 +191,7 @@ pub fn update_lock(packages: &[BrewPackage], recipe_sources: &[String]) -> Resul
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

@@ -49,6 +49,7 @@ pub async fn fetch_and_merge_packages(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::models::BrewPackage;
